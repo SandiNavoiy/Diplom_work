@@ -89,7 +89,7 @@ def interact_with_user():
 
                 # Вывод результатов
                 for product, price in all_predictions.items():
-                    print(f"Predicted price for {product}: {price}")
+                    print(f"Прогнозируемая цена на {product}: {price}")
 
             elif choice == "9":
                 # Выход
