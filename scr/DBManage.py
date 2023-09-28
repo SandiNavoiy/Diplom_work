@@ -47,9 +47,9 @@ class DBManage:
         self.cur.execute(
             "CREATE TABLE IF NOT EXISTS products "
             "(id SERIAL PRIMARY KEY, "
-            "price NUMERIC, "
-            "count INTEGER, "
-            "add_cost NUMERIC, "
+            "price float, "
+            "count float, "
+            "add_cost float, "
             "product VARCHAR(25), "
             "company VARCHAR(25))"
         )
@@ -70,7 +70,10 @@ class DBManage:
     def load_data(self):
         # Загрузка данных из базы данных
         sql_query = f"SELECT price, count, add_cost, product FROM products"
-        self.data = pd.read_sql_query(sql_query, self.conn)
+        self.cur.execute(sql_query)
+        columns = [desc[0] for desc in self.cur.description]
+        data = self.cur.fetchall()
+        self.data = pd.DataFrame(data, columns=columns)
 
     def train_models(self):
         # Разделение данных по продуктам и обучение моделей

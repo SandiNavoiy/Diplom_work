@@ -1,8 +1,7 @@
 import pandas as pd
 
 from util.utils import WelcomeMessage, interact_with_user
-UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-  self.data = pd.read_sql_query(sql_query, self.conn)
+
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     csv_filename = "csv_data.csv"
