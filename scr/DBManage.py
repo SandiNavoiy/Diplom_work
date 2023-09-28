@@ -3,6 +3,7 @@ import psycopg2
 
 class DBManage:
     """Класс для работы с данными в БД"""
+
     def __init__(self, database_name: str, params: dict):
         self.database_name = database_name
         self.params = params
@@ -20,7 +21,7 @@ class DBManage:
         """Создание базы данных или удаление текущей"""
         self.conn.close()  # Закрыть текущее соединение
         # Создать новое соединение для выполнения операций создания и удаления базы данных
-        conn_temp = psycopg2.connect(dbname='postgres', **self.params)
+        conn_temp = psycopg2.connect(dbname="postgres", **self.params)
         conn_temp.autocommit = True
         cur_temp = conn_temp.cursor()
         # Удалить базу данных, если она существует
@@ -37,16 +38,43 @@ class DBManage:
         """Создание таблиц для работодателей и вакансий"""
         self.connect_to_database()
         # Запрос SQL
-        self.cur.execute("CREATE TABLE IF NOT EXISTS employers "
-                         "(employer_id INTEGER PRIMARY KEY, "
-                         "name VARCHAR(255), "
-                         "description TEXT, "
-                         "website VARCHAR(255))")
-        self.cur.execute("CREATE TABLE IF NOT EXISTS vacancies "
-                         "(vacancy_id varchar(10) PRIMARY KEY, "
-                         "employer_id INTEGER,"
-                         "title VARCHAR(255), "
-                         "salary INTEGER, "
-                         "link VARCHAR(255), "
-                         "FOREIGN KEY (employer_id) REFERENCES employers (employer_id))"
-                         )
+        self.cur.execute(
+            "CREATE TABLE IF NOT EXISTS products "
+            "(id SERIAL PRIMARY KEY, "
+            "price NUMERIC, "
+            "count INTEGER, "
+            "add_cost NUMERIC, "
+            "product VARCHAR(25), "
+            "company VARCHAR(25))"
+        )
+        # Создание индекса по столбцу product, для ускорения работы
+        self.cur.execute("CREATE INDEX product_index ON products (product);")
+
+    def insert_table(self, csv_file):
+        """ "Вставка данных"""
+        self.connect_to_database()
+        # Ускорение загрузки, вместо insert используем Copy, разница в разы!
+        with open(csv_file, "r") as f:
+            self.cur.copy_expert(
+                f"COPY products(price, count, add_cost, company, product) FROM STDIN WITH CSV HEADER",
+                f,
+            )
+        self.conn.commit()
+
+    def close_connection(self):
+        """Закрытие соединения с базой данных"""
+        self.connect_to_database()
+        self.cur.close()
+        self.conn.close()
+
+    def error_table(self):
+        """Отлов ошибки отсудствия таблиц, чтоб не ломать код"""
+        self.connect_to_database()
+        # Запрос SQL
+        self.cur.execute(
+            """
+            SELECT * 
+            FROM products
+
+            """
+        )
