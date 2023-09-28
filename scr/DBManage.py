@@ -1,4 +1,8 @@
+import pandas as pd
 import psycopg2
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 
 
 class DBManage:
@@ -9,6 +13,8 @@ class DBManage:
         self.params = params
         self.conn = psycopg2.connect(dbname=self.database_name, **self.params)
         self.cur = self.conn.cursor()
+        self.models = {}
+        self.mse_scores = {}
 
     def connect_to_database(self):
         """Переподключение к базе данных, чтоб не писать одно и тоже"""
@@ -61,6 +67,38 @@ class DBManage:
             )
         self.conn.commit()
 
+    def load_data(self):
+        # Загрузка данных из базы данных
+        sql_query = f"SELECT price, count, add_cost, product FROM products"
+        self.data = pd.read_sql_query(sql_query, self.conn)
+
+    def train_models(self):
+        # Разделение данных по продуктам и обучение моделей
+        unique_products = self.data['product'].unique()
+        for product in unique_products:
+            product_data = self.data[self.data['product'] == product]
+            X = product_data[['count', 'add_cost']]
+            y = product_data['price']
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+            model = LinearRegression()
+            model.fit(X_train, y_train)
+            self.models[product] = model
+            y_pred = model.predict(X_test)
+            mse = mean_squared_error(y_test, y_pred)
+            self.mse_scores[product] = mse
+
+    def predict_prices_for_all_products(self):
+        # Прогнозирование цен для всех продуктов
+        predictions = {}
+        for product in self.models:
+            product_data = self.data[self.data['product'] == product].iloc[0]  # Берем первую строку
+            count = product_data['count']
+            add_cost = product_data['add_cost']
+            model = self.models[product]
+            price = model.predict([[count, add_cost]])
+            predictions[product] = price[0]
+        return predictions
+
     def close_connection(self):
         """Закрытие соединения с базой данных"""
         self.connect_to_database()
@@ -75,6 +113,6 @@ class DBManage:
             """
             SELECT * 
             FROM products
-
+            LIMIT 1
             """
         )

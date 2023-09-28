@@ -53,6 +53,7 @@ def interact_with_user():
 
             print("1 - Перевоздание базы данных и таблиц ")
             print("2 - Заполняем таблицe БД данными")
+            print("3 - Прогнозирование цен")
 
             print("9 - Выйти")
             choice = input("Введите значение---")
@@ -80,6 +81,15 @@ def interact_with_user():
                         print(f"Всего в базе {len(df)} элементов")
                         db_manager.insert_table(csv_filename)
                         print("Таблицы заполнены")
+            elif choice == "3":
+                db_manager.load_data()
+                db_manager.train_models()
+                # Прогнозирование цен для всех продуктов
+                all_predictions = db_manager.predict_prices_for_all_products()
+
+                # Вывод результатов
+                for product, price in all_predictions.items():
+                    print(f"Predicted price for {product}: {price}")
 
             elif choice == "9":
                 # Выход
