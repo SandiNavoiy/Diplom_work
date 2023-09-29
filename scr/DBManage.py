@@ -1,10 +1,13 @@
+import warnings
+
 import pandas as pd
 import psycopg2
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.exceptions import DataConversionWarning
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-
+from sklearn.linear_model import LinearRegression as SklearnLinearRegression
 
 class DBManage:
     """Класс для работы с данными в БД"""
@@ -42,7 +45,7 @@ class DBManage:
         self.connect_to_database()
 
     def create_tables(self):
-        """Создание таблиц для работодателей и вакансий"""
+        """Создание таблицы products"""
         self.connect_to_database()
         # Запрос SQL
         self.cur.execute(
@@ -77,6 +80,7 @@ class DBManage:
         self.data = pd.DataFrame(data, columns=columns)
 
     def train_models(self):
+        warnings.filterwarnings(action='ignore', module='sklearn.linear_model')
         # Разделение данных по продуктам и обучение моделей, линейная регрессия
         unique_products = self.data["product"].unique()
         for product in unique_products:
@@ -86,14 +90,16 @@ class DBManage:
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=0.2, random_state=42
             )
-            model = LinearRegression()
-            model.fit(X_train, y_train)
+            #Игнорирование ошибки отсудвсия имен в LinearRegression
+            model = CustomLinearRegression()
+            model.fit(X_train.values, y_train)
             self.models[product] = model
             y_pred = model.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             self.mse_scores[product] = mse
 
     def train_models__not_line(self):
+        # Разделение данных по продуктам и обучение моделей, не линейная регрессия
         unique_products = self.data["product"].unique()
         for product in unique_products:
             product_data = self.data[self.data["product"] == product]
@@ -124,6 +130,7 @@ class DBManage:
         return predictions
 
     def get_average_prices_for_each_product(self):
+        # вывод средних значений по каждому продкуту
         unique_products = self.data["product"].unique()
         average_prices = {}
         for product in unique_products:
@@ -158,3 +165,10 @@ class DBManage:
             LIMIT 1
             """
         )
+
+
+class CustomLinearRegression(SklearnLinearRegression):
+    def fit(self, X, y):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="X has feature names, but LinearRegression was fitted without feature names")
+            super().fit(X, y)

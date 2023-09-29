@@ -115,9 +115,11 @@ def interact_with_user():
             elif choice == "5":
                 db_manager.load_data()
                 average_prices = db_manager.get_average_prices_for_each_product()
+                print("Вывод средних цен")
+                for key, value in average_prices.items():
+                    print(f'{key}:{value}')
 
-                # Выведите результат на экран или выполните другие операции с ним
-                print(average_prices)
+
 
             elif choice == "9":
                 # Выход
