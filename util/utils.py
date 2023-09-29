@@ -53,7 +53,9 @@ def interact_with_user():
 
             print("1 - Перевоздание базы данных и таблиц ")
             print("2 - Заполняем таблицe БД данными")
-            print("3 - Прогнозирование цен")
+            print("3 - Прогнозирование цен методом линейной регресии")
+            print("4 - Прогнозирование цен методом маштабирования веса влияния")
+            print("5 - Прогнозирование цен самым простым методом, подсчета средней цены")
 
             print("9 - Выйти")
             choice = input("Введите значение---")
@@ -90,6 +92,27 @@ def interact_with_user():
                 # Вывод результатов
                 for product, price in all_predictions.items():
                     print(f"Прогнозируемая цена на {product}: {price}")
+
+            elif choice == "4":
+                db_manager.load_data()
+                db_manager.train_models__not_line()
+                # Прогнозирование цен для всех продуктов
+                all_predictions = db_manager.predict_prices_for_all_products()
+
+                # Вывод результатов
+                for product, price in all_predictions.items():
+                    actual_price = db_manager.data[db_manager.data["product"] == product]["price"].values[0]
+                    predicted_price = all_predictions[product]
+                    deviation = abs(actual_price - predicted_price)
+                    print(
+                        f"Продукт: {product}, Актуальная цена: {actual_price}, Прогнозируемая цена: {predicted_price}, Отклонение: {deviation}")
+
+            elif choice == "5":
+                db_manager.load_data()
+                average_prices = db_manager.get_average_prices_for_each_product()
+
+                # Выведите результат на экран или выполните другие операции с ним
+                print(average_prices)
 
             elif choice == "9":
                 # Выход

@@ -1,5 +1,6 @@
 import pandas as pd
 import psycopg2
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
@@ -75,15 +76,35 @@ class DBManage:
         data = self.cur.fetchall()
         self.data = pd.DataFrame(data, columns=columns)
 
+
+
     def train_models(self):
-        # Разделение данных по продуктам и обучение моделей
-        unique_products = self.data['product'].unique()
+        # Разделение данных по продуктам и обучение моделей, линейная регрессия
+        unique_products = self.data["product"].unique()
         for product in unique_products:
-            product_data = self.data[self.data['product'] == product]
-            X = product_data[['count', 'add_cost']]
-            y = product_data['price']
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+            product_data = self.data[self.data["product"] == product]
+            X = product_data[["count", "add_cost"]]
+            y = product_data["price"]
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42
+            )
             model = LinearRegression()
+            model.fit(X_train, y_train)
+            self.models[product] = model
+            y_pred = model.predict(X_test)
+            mse = mean_squared_error(y_test, y_pred)
+            self.mse_scores[product] = mse
+
+    def train_models__not_line(self):
+        unique_products = self.data["product"].unique()
+        for product in unique_products:
+            product_data = self.data[self.data["product"] == product]
+            X = product_data[["count", "add_cost"]]
+            y = product_data["price"]
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42
+            )
+            model = RandomForestRegressor(n_estimators=100, random_state=42)
             model.fit(X_train, y_train)
             self.models[product] = model
             y_pred = model.predict(X_test)
@@ -94,13 +115,32 @@ class DBManage:
         # Прогнозирование цен для всех продуктов
         predictions = {}
         for product in self.models:
-            product_data = self.data[self.data['product'] == product].iloc[0]  # Берем первую строку
-            count = product_data['count']
-            add_cost = product_data['add_cost']
+            product_data = self.data[self.data["product"] == product].iloc[
+                0
+            ]  # Берем первую строку
+            count = product_data["count"]
+            add_cost = product_data["add_cost"]
             model = self.models[product]
             price = model.predict([[count, add_cost]])
             predictions[product] = price[0]
         return predictions
+
+    def get_average_prices_for_each_product(self):
+        unique_products = self.data["product"].unique()
+        average_prices = {}
+        for product in unique_products:
+            # Запрос SQL для получения средней цены для конкретного продукта
+            sql_query = f"""
+                SELECT AVG(price) AS average_price
+                FROM products
+                WHERE product = '{product}'
+            """
+            self.cur.execute(sql_query)
+            result = self.cur.fetchone()
+            average_price = result[0] if result[
+                                             0] is not None else 0.0  # Обработка случая, когда среднее значение равно NULL
+            average_prices[product] = average_price
+        return average_prices
 
     def close_connection(self):
         """Закрытие соединения с базой данных"""
