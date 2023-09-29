@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # print(df.head(3)) #вывод перывых
     # print(df.tail(1)) #вывод последних
     # print(len(df)) #количество значений в таблице
-    print("Введине веше имя")
+    print("Введите веше имя")
     user_name = input()
     welcome_message = (
         f"{user_name}  - добро пожаловать в программу прогнозирования цен на продукты"

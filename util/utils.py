@@ -55,7 +55,9 @@ def interact_with_user():
             print("2 - Заполняем таблицe БД данными")
             print("3 - Прогнозирование цен методом линейной регресии")
             print("4 - Прогнозирование цен методом маштабирования веса влияния")
-            print("5 - Прогнозирование цен самым простым методом, подсчета средней цены")
+            print(
+                "5 - Прогнозирование цен самым простым методом, подсчета средней цены"
+            )
 
             print("9 - Выйти")
             choice = input("Введите значение---")
@@ -101,11 +103,14 @@ def interact_with_user():
 
                 # Вывод результатов
                 for product, price in all_predictions.items():
-                    actual_price = db_manager.data[db_manager.data["product"] == product]["price"].values[0]
+                    actual_price = db_manager.data[
+                        db_manager.data["product"] == product
+                    ]["price"].values[0]
                     predicted_price = all_predictions[product]
                     deviation = abs(actual_price - predicted_price)
                     print(
-                        f"Продукт: {product}, Актуальная цена: {actual_price}, Прогнозируемая цена: {predicted_price}, Отклонение: {deviation}")
+                        f"Продукт: {product}, Актуальная цена: {actual_price}, Прогнозируемая цена: {predicted_price}, Отклонение: {deviation}"
+                    )
 
             elif choice == "5":
                 db_manager.load_data()
@@ -118,7 +123,7 @@ def interact_with_user():
                 # Выход
                 db_manager.close_connection()
                 print("--------------")
-                print("Спасибо за обращение\n" "До новых встреч!")
+                print("Спасибо за обращение\n" "Конец работы!")
                 print("--------------")
                 break
 

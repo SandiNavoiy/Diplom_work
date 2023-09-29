@@ -76,8 +76,6 @@ class DBManage:
         data = self.cur.fetchall()
         self.data = pd.DataFrame(data, columns=columns)
 
-
-
     def train_models(self):
         # Разделение данных по продуктам и обучение моделей, линейная регрессия
         unique_products = self.data["product"].unique()
@@ -137,8 +135,9 @@ class DBManage:
             """
             self.cur.execute(sql_query)
             result = self.cur.fetchone()
-            average_price = result[0] if result[
-                                             0] is not None else 0.0  # Обработка случая, когда среднее значение равно NULL
+            average_price = (
+                result[0] if result[0] is not None else 0.0
+            )  # Обработка случая, когда среднее значение равно NULL
             average_prices[product] = average_price
         return average_prices
 
