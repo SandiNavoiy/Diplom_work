@@ -88,14 +88,16 @@ def interact_with_user():
             elif choice == "3":
                 db_manager.load_data()
                 db_manager.train_models()
+
                 # Прогнозирование цен для всех продуктов
                 all_predictions = db_manager.predict_prices_for_all_products()
+
 
                 # Вывод результатов
                 for product, price in all_predictions.items():
 
-                    mse = db_manager.mse_scores.get(product, None)
-                    print(f"Прогнозируемая цена на {product}: {price}, отклонение {mse}")
+                    mse = db_manager.mse_scores.get(product, None) / db_manager.number
+                    print(f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse/price)*100, 2)} процентов")
 
             elif choice == "4":
                 db_manager.load_data()
@@ -105,8 +107,8 @@ def interact_with_user():
 
                 # Вывод результатов
                 for product, price in all_predictions.items():
-                    mse = db_manager.mse_scores.get(product, None)
-                    print(f"Прогнозируемая цена на {product}: {price}, отклонение {mse}")
+                    mse = db_manager.mse_scores.get(product, None) / db_manager.number_not_line
+                    print(f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse/price)*100, 2)} процентов")
 
 
 

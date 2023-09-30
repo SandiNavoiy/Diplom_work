@@ -9,6 +9,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.linear_model import LinearRegression as SklearnLinearRegression
 
+
+# Игнорирование всех предупреждений от scikit-learn
+warnings.filterwarnings(action='ignore', category=DataConversionWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 class DBManage:
     """Класс для работы с данными в БД"""
 
@@ -81,7 +86,7 @@ class DBManage:
         self.data = pd.DataFrame(data, columns=columns)
 
     def train_models(self):
-        warnings.filterwarnings(action='ignore', module='sklearn.linear_model')
+
 
         # Разделение данных по продуктам и обучение моделей, линейная регрессия
         unique_products = self.data["product"].unique()
@@ -93,13 +98,18 @@ class DBManage:
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=0.2, random_state=10
             )
+            # Вывод количества точек данных
+            self.number = len(X_train)
+
             #Игнорирование ошибки отсудвсия имен в LinearRegression
-            model = CustomLinearRegression()
+
+            model = LinearRegression()
             model.fit(X_train.values, y_train)
             self.models[product] = model
             y_pred = model.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             self.mse_scores[product] = mse
+
 
 
     def train_models__not_line(self):
@@ -113,6 +123,8 @@ class DBManage:
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=0.2, random_state=10
             )
+            # Вывод количества точек данных
+            self.number_not_line = len(X_train)
             # n_estimators количество деревьев предсказания, max_depth сложность дерева
             model = RandomForestRegressor(n_estimators=10, max_depth=5, random_state=10)
             model.fit(X_train, y_train)
@@ -120,6 +132,7 @@ class DBManage:
             y_pred = model.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             self.mse_scores[product] = mse
+
 
 
 
@@ -173,10 +186,3 @@ class DBManage:
             LIMIT 1
             """
         )
-
-
-class CustomLinearRegression(SklearnLinearRegression):
-    def fit(self, X, y):
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message="X has feature names, but LinearRegression was fitted without feature names")
-            super().fit(X, y)
