@@ -93,7 +93,9 @@ def interact_with_user():
 
                 # Вывод результатов
                 for product, price in all_predictions.items():
-                    print(f"Прогнозируемая цена на {product}: {price}")
+
+                    mse = db_manager.mse_scores.get(product, None)
+                    print(f"Прогнозируемая цена на {product}: {price}, отклонение {mse}")
 
             elif choice == "4":
                 db_manager.load_data()
@@ -103,14 +105,10 @@ def interact_with_user():
 
                 # Вывод результатов
                 for product, price in all_predictions.items():
-                    actual_price = db_manager.data[
-                        db_manager.data["product"] == product
-                    ]["price"].values[0]
-                    predicted_price = all_predictions[product]
-                    deviation = abs(actual_price - predicted_price)
-                    print(
-                        f"Продукт: {product}, Актуальная цена: {actual_price}, Прогнозируемая цена: {predicted_price}, Отклонение: {deviation}"
-                    )
+                    mse = db_manager.mse_scores.get(product, None)
+                    print(f"Прогнозируемая цена на {product}: {price}, отклонение {mse}")
+
+
 
             elif choice == "5":
                 db_manager.load_data()

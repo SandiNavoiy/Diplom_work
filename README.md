@@ -35,5 +35,9 @@
 3. Установить зависимости командой pip install -r requirements.txt
 4. В корень проекта необходимо положить файл database.ini с параметрами для подключения к БД. 
    По умолчанию программа подключается к базе данных 'postgres' Пример содержания .ini файла:
-   [postgresql] host=localhost user=postgres password=12345 port=5432
+   [postgresql]
+host=localhost
+user=postgres
+password=1
+port=5432
 5. Запуск проекта осуществляется из файла main.py

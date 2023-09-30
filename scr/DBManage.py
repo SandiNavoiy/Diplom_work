@@ -19,6 +19,7 @@ class DBManage:
         self.cur = self.conn.cursor()
         self.models = {}
         self.mse_scores = {}
+        self.total_mse_scores = {}
 
     def connect_to_database(self):
         """Переподключение к базе данных, чтоб не писать одно и тоже"""
@@ -81,14 +82,16 @@ class DBManage:
 
     def train_models(self):
         warnings.filterwarnings(action='ignore', module='sklearn.linear_model')
+
         # Разделение данных по продуктам и обучение моделей, линейная регрессия
         unique_products = self.data["product"].unique()
+
         for product in unique_products:
             product_data = self.data[self.data["product"] == product]
             X = product_data[["count", "add_cost"]]
             y = product_data["price"]
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.2, random_state=42
+                X, y, test_size=0.2, random_state=10
             )
             #Игнорирование ошибки отсудвсия имен в LinearRegression
             model = CustomLinearRegression()
@@ -98,22 +101,27 @@ class DBManage:
             mse = mean_squared_error(y_test, y_pred)
             self.mse_scores[product] = mse
 
+
     def train_models__not_line(self):
         # Разделение данных по продуктам и обучение моделей, не линейная регрессия
         unique_products = self.data["product"].unique()
+
         for product in unique_products:
             product_data = self.data[self.data["product"] == product]
             X = product_data[["count", "add_cost"]]
             y = product_data["price"]
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.2, random_state=42
+                X, y, test_size=0.2, random_state=10
             )
-            model = RandomForestRegressor(n_estimators=100, random_state=42)
+            # n_estimators количество деревьев предсказания, max_depth сложность дерева
+            model = RandomForestRegressor(n_estimators=10, max_depth=5, random_state=10)
             model.fit(X_train, y_train)
             self.models[product] = model
             y_pred = model.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             self.mse_scores[product] = mse
+
+
 
     def predict_prices_for_all_products(self):
         # Прогнозирование цен для всех продуктов
