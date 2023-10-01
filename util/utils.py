@@ -1,8 +1,6 @@
 from configparser import ConfigParser
-
 import pandas as pd
 import psycopg2
-
 from scr.DBManage import DBManage
 
 
@@ -51,14 +49,18 @@ def interact_with_user():
             # Запускаем бесконечный цикл для работы меню
             print("Выберите действие:")
 
-            print("1 - Перевоздание базы данных и таблиц ")
-            print("2 - Заполняем таблицe БД данными")
+            print(
+                "1 - Перевоздание базы данных и таблиц (Осторожно, старая БД будет удалена!"
+            )
+            print("2 - Заполняем таблицу БД данными из cvs файла")
             print("3 - Прогнозирование цен методом линейной регресии")
             print("4 - Прогнозирование цен методом маштабирования веса влияния")
             print(
                 "5 - Прогнозирование цен самым простым методом, подсчета средней цены"
             )
-
+            print("6")
+            print("7")
+            print("8")
             print("9 - Выйти")
             choice = input("Введите значение---")
 
@@ -88,38 +90,36 @@ def interact_with_user():
             elif choice == "3":
                 db_manager.load_data()
                 db_manager.train_models()
-
                 # Прогнозирование цен для всех продуктов
                 all_predictions = db_manager.predict_prices_for_all_products()
-
-
                 # Вывод результатов
                 for product, price in all_predictions.items():
-
                     mse = db_manager.mse_scores.get(product, None) / db_manager.number
-                    print(f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse/price)*100, 2)} процентов")
+                    print(
+                        f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse/price)*100, 2)} процентов"
+                    )
 
             elif choice == "4":
                 db_manager.load_data()
                 db_manager.train_models__not_line()
                 # Прогнозирование цен для всех продуктов
                 all_predictions = db_manager.predict_prices_for_all_products()
-
                 # Вывод результатов
                 for product, price in all_predictions.items():
-                    mse = db_manager.mse_scores.get(product, None) / db_manager.number_not_line
-                    print(f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse/price)*100, 2)} процентов")
-
-
+                    mse = (
+                        db_manager.mse_scores.get(product, None)
+                        / db_manager.number_not_line
+                    )
+                    print(
+                        f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse/price)*100, 2)} процентов"
+                    )
 
             elif choice == "5":
                 db_manager.load_data()
                 average_prices = db_manager.get_average_prices_for_each_product()
                 print("Вывод средних цен")
                 for key, value in average_prices.items():
-                    print(f'{key}:{value}')
-
-
+                    print(f"{key}:{value}")
 
             elif choice == "9":
                 # Выход
@@ -131,7 +131,7 @@ def interact_with_user():
 
 
 def config(filename="database.ini", section="postgresql"):
-    """Словарь с данными для подключения к БД"""
+    """Функция с данными для подключения к БД"""
     # создаем парсер
     parser = ConfigParser()
     # читаем конфиг файл

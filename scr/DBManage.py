@@ -1,5 +1,4 @@
 import warnings
-
 import pandas as pd
 import psycopg2
 from sklearn.ensemble import RandomForestRegressor
@@ -7,13 +6,14 @@ from sklearn.exceptions import DataConversionWarning
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-from sklearn.linear_model import LinearRegression as SklearnLinearRegression
 
 
 # Игнорирование всех предупреждений от scikit-learn
-warnings.filterwarnings(action='ignore', category=DataConversionWarning)
+warnings.filterwarnings(action="ignore", category=DataConversionWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
+
+
 class DBManage:
     """Класс для работы с данными в БД"""
 
@@ -78,7 +78,7 @@ class DBManage:
         self.conn.commit()
 
     def load_data(self):
-        # Загрузка данных из базы данных
+        """Загрузка данных из базы данных"""
         sql_query = f"SELECT price, count, add_cost, product FROM products"
         self.cur.execute(sql_query)
         columns = [desc[0] for desc in self.cur.description]
@@ -86,10 +86,10 @@ class DBManage:
         self.data = pd.DataFrame(data, columns=columns)
 
     def train_models(self):
-
-
-        # Разделение данных по продуктам и обучение моделей, линейная регрессия
-        unique_products = self.data["product"].unique()
+        """Разделение данных по продуктам и обучение моделей, линейная регрессия"""
+        unique_products = self.data[
+            "product"
+        ].unique()  # Выборка уникальных значений продкутов
 
         for product in unique_products:
             product_data = self.data[self.data["product"] == product]
@@ -100,9 +100,6 @@ class DBManage:
             )
             # Вывод количества точек данных
             self.number = len(X_train)
-
-            #Игнорирование ошибки отсудвсия имен в LinearRegression
-
             model = LinearRegression()
             model.fit(X_train.values, y_train)
             self.models[product] = model
@@ -110,11 +107,11 @@ class DBManage:
             mse = mean_squared_error(y_test, y_pred)
             self.mse_scores[product] = mse
 
-
-
     def train_models__not_line(self):
-        # Разделение данных по продуктам и обучение моделей, не линейная регрессия
-        unique_products = self.data["product"].unique()
+        """Разделение данных по продуктам и обучение моделей, не линейная регрессия"""
+        unique_products = self.data[
+            "product"
+        ].unique()  # Выборка уникальных значений продкутов
 
         for product in unique_products:
             product_data = self.data[self.data["product"] == product]
@@ -133,11 +130,8 @@ class DBManage:
             mse = mean_squared_error(y_test, y_pred)
             self.mse_scores[product] = mse
 
-
-
-
     def predict_prices_for_all_products(self):
-        # Прогнозирование цен для всех продуктов
+        """Прогнозирование цен для всех продуктов"""
         predictions = {}
         for product in self.models:
             product_data = self.data[self.data["product"] == product].iloc[
@@ -151,8 +145,10 @@ class DBManage:
         return predictions
 
     def get_average_prices_for_each_product(self):
-        # вывод средних значений по каждому продкуту
-        unique_products = self.data["product"].unique()
+        """Вывод средних значений по каждому продукту"""
+        unique_products = self.data[
+            "product"
+        ].unique()  # Выборка уникальных значений продкутов
         average_prices = {}
         for product in unique_products:
             # Запрос SQL для получения средней цены для конкретного продукта
@@ -176,7 +172,7 @@ class DBManage:
         self.conn.close()
 
     def error_table(self):
-        """Отлов ошибки отсудствия таблиц, чтоб не ломать код"""
+        """Отлов ошибки отсутствия таблиц, чтоб не ломать код"""
         self.connect_to_database()
         # Запрос SQL
         self.cur.execute(

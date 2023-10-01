@@ -1,5 +1,3 @@
-import pandas as pd
-
 from util.utils import WelcomeMessage, interact_with_user
 
 # Press the green button in the gutter to run the script.
