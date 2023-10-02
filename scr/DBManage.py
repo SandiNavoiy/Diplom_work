@@ -165,6 +165,28 @@ class DBManage:
             average_prices[product] = average_price
         return average_prices
 
+    def get_max_min_price_for_each_product(self):
+        """Определение максимального и минимального значения цены для каждого продукта"""
+        # SELECT product, MAX(price) AS max_price,  MIN(price) AS min_price FROM  products GROUP BY product;
+        unique_products = self.data["product"].unique()
+        max_min_prices = {}
+        for product in unique_products:
+            product_data = self.data[self.data["product"] == product]
+            max_price = product_data["price"].max()  # Максимальная цена
+            min_price = product_data["price"].min()  # Минимальная цена
+            max_min_prices[product] = {"max_price": max_price, "min_price": min_price}
+        return max_min_prices
+
+    def get_record_count_for_each_product(self):
+        """Определение количества записей для каждого продукта"""
+        unique_products = self.data["product"].unique()
+        record_counts = {}
+        for product in unique_products:
+            product_data = self.data[self.data["product"] == product]
+            record_count = len(product_data)
+            record_counts[product] = record_count
+        return record_counts
+
     def close_connection(self):
         """Закрытие соединения с базой данных"""
         self.connect_to_database()
