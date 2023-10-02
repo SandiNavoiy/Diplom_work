@@ -88,53 +88,91 @@ def interact_with_user():
                         db_manager.insert_table(csv_filename)
                         print("Таблицы заполнены")
             elif choice == "3":
-                db_manager.load_data()
-                db_manager.train_models()
-                # Прогнозирование цен для всех продуктов
-                all_predictions = db_manager.predict_prices_for_all_products()
-                # Вывод результатов
-                for product, price in all_predictions.items():
-                    mse = db_manager.mse_scores.get(product, None) / db_manager.number
-                    print(
-                        f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse / price) * 100, 2)} процентов"
-                    )
+                try:
+                    db_manager.load_data()
+                    db_manager.train_models()
+                    # Прогнозирование цен для всех продуктов
+                    all_predictions = db_manager.predict_prices_for_all_products()
+                    if all_predictions == {}:
+                        print("Ошибка - Заполните таблицу данными")
+                    # Вывод результатов
+                    for product, price in all_predictions.items():
+                        mse = db_manager.mse_scores.get(product, None) / db_manager.number
+                        print(
+                            f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse / price) * 100, 2)} процентов"
+                        )
+                except psycopg2.errors.UndefinedTable:
+                    print("Ошибка - Создайте таблицу")
+                except psycopg2.errors.InFailedSqlTransaction:
+                    print("Ошибка - Создайте таблицу")
 
             elif choice == "4":
-                db_manager.load_data()
-                db_manager.train_models__not_line()
-                # Прогнозирование цен для всех продуктов
-                all_predictions = db_manager.predict_prices_for_all_products()
-                # Вывод результатов
-                for product, price in all_predictions.items():
-                    mse = (
-                        db_manager.mse_scores.get(product, None)
-                        / db_manager.number_not_line
-                    )
-                    print(
-                        f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse / price) * 100, 2)} процентов"
-                    )
+                try:
+
+                    db_manager.load_data()
+                    db_manager.train_models__not_line()
+                    # Прогнозирование цен для всех продуктов
+                    all_predictions = db_manager.predict_prices_for_all_products()
+                    if all_predictions == {}:
+                        print("Ошибка - Заполните таблицу данными")
+                    # Вывод результатов
+                    for product, price in all_predictions.items():
+                        mse = (
+                            db_manager.mse_scores.get(product, None)
+                            / db_manager.number_not_line
+                        )
+                        print(
+                            f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse / price) * 100, 2)} процентов"
+                        )
+                except psycopg2.errors.UndefinedTable:
+                    print("Ошибка - Создайте таблицу")
+                except psycopg2.errors.InFailedSqlTransaction:
+                    print("Ошибка - Создайте таблицу")
 
             elif choice == "5":
-                db_manager.load_data()
-                average_prices = db_manager.get_average_prices_for_each_product()
-                print("Вывод средних цен")
-                for key, value in average_prices.items():
-                    print(f"{key}:{value}")
+                try:
+                    db_manager.load_data()
+                    average_prices = db_manager.get_average_prices_for_each_product()
+                    if average_prices == {}:
+                        print("Ошибка - Заполните таблицу данными")
+                    print("Вывод средних цен")
+                    for key, value in average_prices.items():
+                        print(f"{key}:{value}")
+                except psycopg2.errors.UndefinedTable:
+                    print("Ошибка - Создайте таблицу")
+                except psycopg2.errors.InFailedSqlTransaction:
+                    print("Ошибка - Создайте таблицу")
 
             elif choice == "6":
-                db_manager.load_data()
-                max_min_prices = db_manager.get_max_min_price_for_each_product()
-                for product, prices in max_min_prices.items():
-                    print(f"Product: {product}")
-                    print(f"Max Price: {prices['max_price']}")
-                    print(f"Min Price: {prices['min_price']}")
+                try:
+                    db_manager.load_data()
+                    max_min_prices = db_manager.get_max_min_price_for_each_product()
+                    if max_min_prices == {}:
+                        print("Ошибка - Заполните таблицу данными")
+                    for product, prices in max_min_prices.items():
+                        print(f"Product: {product}")
+                        print(f"Max Price: {prices['max_price']}")
+                        print(f"Min Price: {prices['min_price']}")
+                except psycopg2.errors.UndefinedTable:
+                    print("Ошибка - Создайте таблицу")
+                except psycopg2.errors.InFailedSqlTransaction:
+                    print("Ошибка - Создайте таблицу")
+
 
             elif choice == "7":
-                db_manager.load_data()
-                record_counts = db_manager.get_record_count_for_each_product()
-                for product, prices in max_min_prices.items():
-                    print(f"Product: {product}")
-                    print(f"Record Count: {record_counts[product]}\n")
+                try:
+                    db_manager.load_data()
+                    record_counts = db_manager.get_record_count_for_each_product()
+                    for product, prices in max_min_prices.items():
+                        print(f"Product: {product}")
+                        print(f"Record Count: {record_counts[product]}\n")
+                except psycopg2.errors.UndefinedTable:
+                    print("Ошибка - Создайте таблицу")
+                except psycopg2.errors.InFailedSqlTransaction:
+                    print("Ошибка - Создайте таблицу")
+                except UnboundLocalError:
+                    print("Ошибка - Заполните таблицу")
+
 
             elif choice == "8":
                 print(
