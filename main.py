@@ -1,16 +1,15 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from util.utils import WelcomeMessage, interact_with_user
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+if __name__ == "__main__":
+    csv_filename = "csv_data.csv"
+    print("Введите ваше имя")
+    user_name = input()
+    welcome_message = (
+        f"{user_name}  - добро пожаловать в программу прогнозирования цен на продукты"
+    )
+    welcome = WelcomeMessage(welcome_message)
+    print(welcome)
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    # Запуск контекстного меню
+    interact_with_user()
