@@ -2,12 +2,6 @@ import pytest
 import os
 import pandas as pd
 import psycopg2
-from sklearn.exceptions import DataConversionWarning
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
-from sklearn.ensemble import RandomForestRegressor
-
 from scr.DBManage import DBManage
 
 # Путь к тестовому файлу CSV
@@ -61,6 +55,7 @@ def test_data():
 
 
 def test_create_database(test_db):
+    """Создание БД, тест"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_database()
     # Проверяем, что база данных успешно создана
@@ -68,6 +63,7 @@ def test_create_database(test_db):
 
 
 def test_create_tables(test_db):
+    """Тест создания таблиц"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_tables()
     # Проверяем, что таблица "products" успешно создана
@@ -76,6 +72,7 @@ def test_create_tables(test_db):
 
 
 def test_insert_table(test_db, test_data):
+    """Тест заполнения таблиц"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_tables()
     db_manager.insert_table(TEST_CSV_FILE)
@@ -85,6 +82,7 @@ def test_insert_table(test_db, test_data):
 
 
 def test_load_data(test_db, test_data):
+    """Тест загрузки данных из БД"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_tables()
     db_manager.insert_table(TEST_CSV_FILE)
@@ -95,6 +93,7 @@ def test_load_data(test_db, test_data):
 
 
 def test_train_models(test_db, test_data):
+    """Тест обучения модели"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_tables()
     db_manager.insert_table(TEST_CSV_FILE)
@@ -106,6 +105,7 @@ def test_train_models(test_db, test_data):
 
 
 def test_train_models_not_line(test_db, test_data):
+    """Тест обучения модели, дерева"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_tables()
     db_manager.insert_table(TEST_CSV_FILE)
@@ -129,6 +129,7 @@ def test_predict_prices_for_all_products(test_db, test_data):
 
 
 def test_get_average_prices_for_each_product(test_db, test_data):
+    """Тест средней цены"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_tables()
     db_manager.insert_table(TEST_CSV_FILE)
@@ -140,6 +141,7 @@ def test_get_average_prices_for_each_product(test_db, test_data):
 
 
 def test_get_max_min_price_for_each_product(test_db, test_data):
+    """Тест максимальной и минимальной цены"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_tables()
     db_manager.insert_table(TEST_CSV_FILE)
@@ -151,6 +153,7 @@ def test_get_max_min_price_for_each_product(test_db, test_data):
 
 
 def test_get_record_count_for_each_product(test_db, test_data):
+    """Тест количества записей"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_tables()
     db_manager.insert_table(TEST_CSV_FILE)
@@ -162,6 +165,7 @@ def test_get_record_count_for_each_product(test_db, test_data):
 
 
 def test_close_connection(test_db):
+    """Тест закрытия соединения"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.close_connection()
     # Проверяем, что соединение успешно закрыто
@@ -169,6 +173,7 @@ def test_close_connection(test_db):
 
 
 def test_error_table(test_db):
+    """Тест наличия таблицы"""
     db_manager = DBManage(TEST_DB_NAME, TEST_DB_PARAMS)
     db_manager.create_tables()
     db_manager.error_table()

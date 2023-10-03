@@ -65,7 +65,8 @@ class DBManage:
         )
         # Создание индекса по столбцу product, для ускорения работы
         self.cur.execute(
-            "SELECT indexname FROM pg_indexes WHERE tablename = 'products' AND indexname = 'product_index';")
+            "SELECT indexname FROM pg_indexes WHERE tablename = 'products' AND indexname = 'product_index';"
+        )
         if not self.cur.fetchone():
             self.cur.execute("CREATE INDEX product_index ON products (product);")
 

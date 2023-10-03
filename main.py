@@ -1,7 +1,6 @@
-from util.utils import WelcomeMessage, interact_with_user, config
+from util.utils import WelcomeMessage, interact_with_user
 
 if __name__ == "__main__":
-
     print("Введите ваше имя")
     user_name = input()
     welcome_message = (

@@ -1,5 +1,3 @@
-import os
-
 from util.utils import WelcomeMessage, config
 import pytest
 
@@ -21,16 +19,17 @@ def test_create_border():
     border = welcome_message.create_border(5, 3)
     assert border == "+------+\n"
 
+
 def test_existing_section():
     """Тест наличия данных для подключения"""
-    #params = config("../database.ini") # Строка для теста конктетного файла
-    params = config() #Строка для теста pytest --cov
-
+    # params = config("../database.ini") # Строка для теста конктетного файла
+    params = config()  # Строка для теста pytest --cov
 
     assert "host" in params
     assert "port" in params
     assert "user" in params
     assert "password" in params
+
 
 def test_non_existing_file():
     """Тест отсудствия файла"""
@@ -47,4 +46,3 @@ def test_empty_config_file(tmpdir):
     with pytest.raises(Exception) as excinfo:
         config(empty_config_file, "postgresql")
     assert "Section postgresql is not found" in str(excinfo.value)
-
