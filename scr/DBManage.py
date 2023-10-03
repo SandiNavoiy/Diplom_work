@@ -64,7 +64,11 @@ class DBManage:
             "company VARCHAR(25))"
         )
         # Создание индекса по столбцу product, для ускорения работы
-        self.cur.execute("CREATE INDEX product_index ON products (product);")
+        self.cur.execute(
+            "SELECT indexname FROM pg_indexes WHERE tablename = 'products' AND indexname = 'product_index';"
+        )
+        if not self.cur.fetchone():
+            self.cur.execute("CREATE INDEX product_index ON products (product);")
 
     def insert_table(self, csv_file):
         """ "Вставка данных"""
@@ -168,6 +172,7 @@ class DBManage:
     def get_max_min_price_for_each_product(self):
         """Определение максимального и минимального значения цены для каждого продукта"""
         # SELECT product, MAX(price) AS max_price,  MIN(price) AS min_price FROM  products GROUP BY product;
+
         unique_products = self.data["product"].unique()
         max_min_prices = {}
         for product in unique_products:
@@ -179,6 +184,8 @@ class DBManage:
 
     def get_record_count_for_each_product(self):
         """Определение количества записей для каждого продукта"""
+        if self.data is None:
+            self.load_data()
         unique_products = self.data["product"].unique()
         record_counts = {}
         for product in unique_products:
