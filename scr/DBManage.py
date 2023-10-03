@@ -26,7 +26,6 @@ class DBManage:
         self.mse_scores = {}
         self.total_mse_scores = {}
 
-
     def connect_to_database(self):
         """Переподключение к базе данных, чтоб не писать одно и тоже"""
         self.conn.close()
@@ -65,7 +64,10 @@ class DBManage:
             "company VARCHAR(25))"
         )
         # Создание индекса по столбцу product, для ускорения работы
-        self.cur.execute("CREATE INDEX product_index ON products (product);")
+        self.cur.execute(
+            "SELECT indexname FROM pg_indexes WHERE tablename = 'products' AND indexname = 'product_index';")
+        if not self.cur.fetchone():
+            self.cur.execute("CREATE INDEX product_index ON products (product);")
 
     def insert_table(self, csv_file):
         """ "Вставка данных"""

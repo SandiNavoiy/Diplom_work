@@ -31,6 +31,7 @@ def interact_with_user():
     """Функция для взаимодействия с пользователем."""
     # Инициируем обьекты классов для работы
     params = config()
+
     name_db = "testing"
     try:
         db_manager = DBManage(name_db, params)
@@ -97,7 +98,9 @@ def interact_with_user():
                         print("Ошибка - Заполните таблицу данными")
                     # Вывод результатов
                     for product, price in all_predictions.items():
-                        mse = db_manager.mse_scores.get(product, None) / db_manager.number
+                        mse = (
+                            db_manager.mse_scores.get(product, None) / db_manager.number
+                        )
                         print(
                             f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse / price) * 100, 2)} процентов"
                         )
@@ -108,7 +111,6 @@ def interact_with_user():
 
             elif choice == "4":
                 try:
-
                     db_manager.load_data()
                     db_manager.train_models__not_line()
                     # Прогнозирование цен для всех продуктов
@@ -158,7 +160,6 @@ def interact_with_user():
                 except psycopg2.errors.InFailedSqlTransaction:
                     print("Ошибка - Создайте таблицу")
 
-
             elif choice == "7":
                 try:
                     db_manager.load_data()
@@ -172,7 +173,6 @@ def interact_with_user():
                     print("Ошибка - Создайте таблицу")
                 except UnboundLocalError:
                     print("Ошибка - трассировка")
-
 
             elif choice == "8":
                 print(
