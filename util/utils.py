@@ -163,7 +163,7 @@ def interact_with_user():
                 try:
                     db_manager.load_data()
                     record_counts = db_manager.get_record_count_for_each_product()
-                    for product, prices in max_min_prices.items():
+                    for product, prices in record_counts.items():
                         print(f"Product: {product}")
                         print(f"Record Count: {record_counts[product]}\n")
                 except psycopg2.errors.UndefinedTable:
@@ -171,7 +171,7 @@ def interact_with_user():
                 except psycopg2.errors.InFailedSqlTransaction:
                     print("Ошибка - Создайте таблицу")
                 except UnboundLocalError:
-                    print("Ошибка - Заполните таблицу")
+                    print("Ошибка - трассировка")
 
 
             elif choice == "8":

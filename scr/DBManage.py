@@ -26,6 +26,7 @@ class DBManage:
         self.mse_scores = {}
         self.total_mse_scores = {}
 
+
     def connect_to_database(self):
         """Переподключение к базе данных, чтоб не писать одно и тоже"""
         self.conn.close()
@@ -168,6 +169,7 @@ class DBManage:
     def get_max_min_price_for_each_product(self):
         """Определение максимального и минимального значения цены для каждого продукта"""
         # SELECT product, MAX(price) AS max_price,  MIN(price) AS min_price FROM  products GROUP BY product;
+
         unique_products = self.data["product"].unique()
         max_min_prices = {}
         for product in unique_products:
@@ -179,6 +181,8 @@ class DBManage:
 
     def get_record_count_for_each_product(self):
         """Определение количества записей для каждого продукта"""
+        if self.data is None:
+            self.load_data()
         unique_products = self.data["product"].unique()
         record_counts = {}
         for product in unique_products:
