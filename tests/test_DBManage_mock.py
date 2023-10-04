@@ -1,10 +1,11 @@
+import factories as factories
 import pytest
 import pandas as pd
 from unittest.mock import MagicMock
-
+from pytest_postgresql import factories
 from scr.DBManage import DBManage
 
-
+#postgres_db = factories.postgresql("postgresql")
 @pytest.fixture
 def mock_db_manage(mocker):
     # Создаем фиктивный объект DBManage для тестирования
@@ -71,23 +72,27 @@ def test_insert_table(mock_db_manage, mocker):
         mocker.ANY,
     )
 
-# def test_load_data(mock_db_manage, mocker):
-#     # Создаем мок-объект для psycopg2.connect
-#     mock_connect = mocker.patch('psycopg2.connect')
-#     mock_conn = MagicMock()
-#     mock_connect.return_value = mock_conn
-#
-#     # Создаем мок-объект для psycopg2.cursor
-#     mock_cursor = mock_conn.cursor.return_value
-#
-#     # Мокируем результат запроса
-#     mock_cursor.description = [("price",), ("count",), ("add_cost",), ("product",)]
-#
-#     # Вызываем метод load_data
-#     mock_db_manage.load_data()
-#
-#     # Убеждаемся, что метод execute вызывается с правильным SQL-запросом
-#     mock_cursor.execute.assert_called_once_with("SELECT price, count, add_cost, product FROM products")
+def test_load_data(mock_db_manage, mocker):
+    # Создаем мок-объект для psycopg2.connect
+    mock_connect = mocker.patch('psycopg2.connect')
+    mock_conn = MagicMock()
+    mock_connect.return_value = mock_conn
+
+    # Создаем мок-объект для psycopg2.cursor
+    mock_cursor = mock_conn.cursor.return_value
+
+    # Мокируем результат запроса
+    mock_cursor.description = [("price",), ("count",), ("add_cost",), ("product",)]
+
+    # Мокируем execute метод
+    mock_cursor.execute = MagicMock()
+
+    # Вызываем метод load_data
+    mock_db_manage.load_data()
+
+    # Убеждаемся, что метод execute вызывается с правильным SQL-запросом
+    expected_sql_query = "SELECT price, count, add_cost, product FROM products"
+    mock_cursor.execute.assert_called_once_with(expected_sql_query)
 # #
 # def test_train_models(mock_db_manage):
 #     # Подготовим фейковые данные для теста
