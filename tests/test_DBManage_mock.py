@@ -1,165 +1,222 @@
-# import pytest
-# import pandas as pd
-# from scr.DBManage import DBManage
-# import psycopg2
+import pytest
+import pandas as pd
+from unittest.mock import MagicMock
+
+from scr.DBManage import DBManage
+
+
+@pytest.fixture
+def mock_db_manage(mocker):
+    # Создаем фиктивный объект DBManage для тестирования
+    return DBManage(database_name="test_db", params={"user": "postgres", "password": "1"})
+
+def test_connect_to_database(mock_db_manage, mocker):
+    # Создаем мок-объект для psycopg2.connect
+    mock_connect = mocker.patch('psycopg2.connect')
+    mock_conn = MagicMock()
+    mock_connect.return_value = mock_conn
+
+    # Вызываем метод connect_to_database
+    mock_db_manage.connect_to_database()
+
+    # Убеждаемся, что connect вызывается с правильными аргументами
+    mock_connect.assert_called_once_with(dbname="test_db", user="postgres", password="1")
+
+def test_create_database(mock_db_manage, mocker):
+    # Создаем мок-объект для psycopg2.connect
+    mock_connect = mocker.patch('psycopg2.connect')
+    mock_conn = MagicMock()
+    mock_connect.return_value = mock_conn
+    # Создаем мок-объект для psycopg2.cursor
+    mock_cursor = mock_conn.cursor.return_value
+    # Вызываем метод create_database
+    mock_db_manage.create_database()
+    # Убеждаемся, что методы для создания и удаления базы данных вызываются
+    mock_cursor.execute.assert_any_call("DROP DATABASE IF EXISTS test_db")
+    mock_cursor.execute.assert_any_call("CREATE DATABASE test_db")
 #
-# from util.utils import config
+def test_create_tables(mock_db_manage, mocker):
+    # Создаем мок-объект для psycopg2.connect
+    mock_connect = mocker.patch('psycopg2.connect')
+    mock_conn = MagicMock()
+    mock_connect.return_value = mock_conn
+
+    # Создаем мок-объект для psycopg2.cursor
+    mock_cursor = mock_conn.cursor.return_value
+
+    # Вызываем метод create_tables
+    mock_db_manage.create_tables()
+
+    # Убеждаемся, что метод создания таблицы и индекса вызываются
+    mock_cursor.execute.assert_any_call("CREATE TABLE IF NOT EXISTS products (id SERIAL PRIMARY KEY, price float, count float, add_cost float, product VARCHAR(25), company VARCHAR(25))")
+    mock_cursor.execute.assert_any_call("SELECT indexname FROM pg_indexes WHERE tablename = 'products' AND indexname = 'product_index';")
+
+
+def test_insert_table(mock_db_manage, mocker):
+    # Создаем мок-объект для psycopg2.connect
+    mock_connect = mocker.patch('psycopg2.connect')
+    mock_conn = MagicMock()
+    mock_connect.return_value = mock_conn
+
+    # Создаем мок-объект для psycopg2.cursor
+    mock_cursor = mock_conn.cursor.return_value
+
+    # Вызываем метод insert_table
+    csv_file = "../csv_data_test.csv"  # Замените на путь к вашему тестовому файлу CSV
+    mock_db_manage.insert_table(csv_file)
+
+    # Убеждаемся, что метод copy_expert вызывается с правильными аргументами
+    mock_cursor.copy_expert.assert_called_once_with(
+        "COPY products(price, count, add_cost, company, product) FROM STDIN WITH CSV HEADER",
+        mocker.ANY,
+    )
+
+# def test_load_data(mock_db_manage, mocker):
+#     # Создаем мок-объект для psycopg2.connect
+#     mock_connect = mocker.patch('psycopg2.connect')
+#     mock_conn = MagicMock()
+#     mock_connect.return_value = mock_conn
 #
+#     # Создаем мок-объект для psycopg2.cursor
+#     mock_cursor = mock_conn.cursor.return_value
 #
-# # Создаем мок-объект для базы данных
-# @pytest.fixture
-# def mock_db(mocker):
-#     mocker.patch("psycopg2.connect")
-#     db = mocker.MagicMock()
-#     return db
+#     # Мокируем результат запроса
+#     mock_cursor.description = [("price",), ("count",), ("add_cost",), ("product",)]
 #
+#     # Вызываем метод load_data
+#     mock_db_manage.load_data()
 #
-# # Создаем мок-объект для DBManage
-# @pytest.fixture
-# def db_manager(mock_db, mocker):
-#     params = config("../database.ini")
-#     mocker.patch("scr.DBManage.config", return_value=params)
-#     db_manager = DBManage("testing", params)
-#     db_manager.conn = mock_db
-#     return db_manager
+#     # Убеждаемся, что метод execute вызывается с правильным SQL-запросом
+#     mock_cursor.execute.assert_called_once_with("SELECT price, count, add_cost, product FROM products")
+# #
+# def test_train_models(mock_db_manage):
+#     # Подготовим фейковые данные для теста
+#     mock_db_manage.data = pd.DataFrame({
+#         "count": [1, 2, 3, 4, 5],
+#         "add_cost": [10, 20, 30, 40, 50],
+#         "price": [20, 40, 60, 80, 100],
+#         "product": ["A", "A", "B", "B", "C"]
+#     })
 #
+#     # Вызываем метод train_models
+#     mock_db_manage.train_models()
 #
-# # Тест для создания таблицы
-# def test_create_tables(db_manager, mocker):
-#     mocker.patch("scr.DBManage.psycopg2")
-#     db_manager.create_tables()
-#     # Проверяем, что был вызван метод execute
-#     db_manager.conn.cursor().execute.assert_called()
+#     # Проверяем, что модели были обучены и добавлены в словарь models
+#     assert len(mock_db_manage.models) == 3
+#     assert "A" in mock_db_manage.models
+#     assert "B" in mock_db_manage.models
+#     assert "C" in mock_db_manage.models
 #
+# def test_train_models_not_line(mock_db_manage):
+#     # Подготовим фейковые данные для теста
+#     mock_db_manage.data = pd.DataFrame({
+#         "count": [1, 2, 3, 4, 5],
+#         "add_cost": [10, 20, 30, 40, 50],
+#         "price": [20, 40, 60, 80, 100],
+#         "product": ["A", "A", "B", "B", "C"]
+#     })
 #
-# # Тест для вставки данных в таблицу
-# def test_insert_table(db_manager, mocker):
-#     mocker.patch("scr.DBManage.pd.read_csv")
-#     mocker.patch("scr.DBManage.os.path.isfile", return_value=True)
-#     mocker.patch("scr.DBManage.os.remove")
-#     mocker.patch("scr.DBManage.psycopg2")
+#     # Вызываем метод train_models_not_line
+#     mock_db_manage.train_models_not_line()
 #
-#     db_manager.create_tables()
-#     db_manager.insert_table("test_data.csv")
-#     # Проверяем, что был вызван метод execute
-#     db_manager.conn.cursor().execute.assert_called()
+#     # Проверяем, что модели были обучены и добавлены в словарь models
+#     assert len(mock_db_manage.models) == 3
+#     assert "A" in mock_db_manage.models
+#     assert "B" in mock_db_manage.models
+#     assert "C" in mock_db_manage.models
 #
+# def test_predict_prices_for_all_products(mock_db_manage):
+#     # Подготовим фейковые данные для теста
+#     mock_db_manage.models = {
+#         "A": MagicMock(predict=MagicMock(return_value=[30.0])),
+#         "B": MagicMock(predict=MagicMock(return_value=[70.0])),
+#         "C": MagicMock(predict=MagicMock(return_value=[90.0])),
+#     }
 #
-# # Тест для загрузки данных
-# def test_load_data(db_manager, mocker):
-#     mocker.patch("scr.DBManage.pd.DataFrame")
-#     mocker.patch("scr.DBManage.psycopg2")
+#     # Вызываем метод predict_prices_for_all_products
+#     predictions = mock_db_manage.predict_prices_for_all_products()
 #
-#     db_manager.load_data()
-#     # Проверяем, что был вызван метод execute
-#     db_manager.conn.cursor().execute.assert_called()
+#     # Проверяем, что метод возвращает правильные предсказания
+#     assert predictions == {"A": 30.0, "B": 70.0, "C": 90.0}
 #
+# def test_get_average_prices_for_each_product(mock_db_manage, mocker):
+#     # Создаем мок-объект для psycopg2.connect
+#     mock_connect = mocker.patch('psycopg2.connect')
+#     mock_conn = MagicMock()
+#     mock_connect.return_value = mock_conn
 #
-# # Тест для обучения модели (линейная регрессия)
-# def test_train_models(db_manager, mocker):
-#     mocker.patch("scr.DBManage.pd.read_csv")
-#     mocker.patch("scr.DBManage.pd.DataFrame")
-#     mocker.patch("scr.DBManage.train_test_split")
-#     mocker.patch("scr.DBManage.LinearRegression")
-#     mocker.patch("scr.DBManage.mean_squared_error")
-#     mocker.patch("scr.DBManage.psycopg2")
+#     # Создаем мок-объект для psycopg2.cursor
+#     mock_cursor = mock_conn.cursor.return_value
 #
-#     db_manager.load_data()
-#     db_manager.train_models()
-#     # Проверяем, что был вызван метод fit
-#     db_manager.models["A"].fit.assert_called()
-#     # Проверяем, что был вызван метод predict
-#     db_manager.models["A"].predict.assert_called()
-#     # Проверяем, что был вызван метод mean_squared_error
-#     db_manager.mean_squared_error.assert_called()
+#     # Мокируем результат запроса
+#     mock_cursor.description = [("average_price",)]
 #
+#     # Подготавливаем фейковые данные для теста
+#     mock_cursor.fetchall.return_value = [(25.0,), (55.0,), (85.0,)]
 #
-# # Тест для обучения модели (случайные деревья)
-# def test_train_models_not_line(db_manager, mocker):
-#     mocker.patch("scr.DBManage.pd.read_csv")
-#     mocker.patch("scr.DBManage.pd.DataFrame")
-#     mocker.patch("scr.DBManage.train_test_split")
-#     mocker.patch("scr.DBManage.RandomForestRegressor")
-#     mocker.patch("scr.DBManage.mean_squared_error")
-#     mocker.patch("scr.DBManage.psycopg2")
+#     # Вызываем метод get_average_prices_for_each_product
+#     average_prices = mock_db_manage.get_average_prices_for_each_product()
 #
-#     db_manager.load_data()
-#     db_manager.train_models__not_line()
-#     # Проверяем, что был вызван метод fit
-#     db_manager.models["A"].fit.assert_called()
-#     # Проверяем, что был вызван метод predict
-#     db_manager.models["A"].predict.assert_called()
-#     # Проверяем, что был вызван метод mean_squared_error
-#     db_manager.mean_squared_error.assert_called()
+#     # Проверяем, что метод возвращает правильные средние цены
+#     assert average_prices == {"A": 25.0, "B": 55.0, "C": 85.0}
 #
+# def test_get_max_min_price_for_each_product(mock_db_manage):
+#     # Подготовим фейковые данные для теста
+#     mock_db_manage.data = pd.DataFrame({
+#         "price": [20, 40, 60, 80, 100, 10, 110],
+#         "product": ["A", "A", "B", "B", "C", "A", "C"]
+#     })
 #
-# # Тест для прогнозирования цен для всех продуктов
-# def test_predict_prices_for_all_products(db_manager, mocker):
-#     mocker.patch("scr.DBManage.pd.read_csv")
-#     mocker.patch("scr.DBManage.pd.DataFrame")
-#     mocker.patch("scr.DBManage.train_test_split")
-#     mocker.patch("scr.DBManage.LinearRegression")
-#     mocker.patch("scr.DBManage.mean_squared_error")
-#     mocker.patch("scr.DBManage.psycopg2")
+#     # Вызываем метод get_max_min_price_for_each_product
+#     max_min_prices = mock_db_manage.get_max_min_price_for_each_product()
 #
-#     db_manager.load_data()
-#     db_manager.train_models()
-#     db_manager.predict_prices_for_all_products()
-#     # Проверяем, что был вызван метод predict
-#     db_manager.models["A"].predict.assert_called()
+#     # Проверяем, что метод возвращает правильные максимальные и минимальные цены
+#     assert max_min_prices == {"A": {"max_price": 40, "min_price": 10}, "B": {"max_price": 80, "min_price": 60}, "C": {"max_price": 100, "min_price": 10}}
 #
+# def test_get_record_count_for_each_product(mock_db_manage):
+#     # Подготовим фейковые данные для теста
+#     mock_db_manage.data = pd.DataFrame({
+#         "product": ["A", "A", "B", "B", "C", "A", "C"]
+#     })
 #
-# # Тест для получения средних цен для каждого продукта
-# def test_get_average_prices_for_each_product(db_manager, mocker):
-#     mocker.patch("scr.DBManage.pd.read_csv")
-#     mocker.patch("scr.DBManage.pd.DataFrame")
-#     mocker.patch("scr.DBManage.psycopg2")
+#     # Вызываем метод get_record_count_for_each_product
+#     record_counts = mock_db_manage.get_record_count_for_each_product()
 #
-#     db_manager.load_data()
-#     db_manager.get_average_prices_for_each_product()
-#     # Проверяем, что был вызван метод execute
-#     db_manager.conn.cursor().execute.assert_called()
+#     # Проверяем, что метод возвращает правильное количество записей
+#     assert record_counts == {"A": 3, "B": 2, "C": 2}
 #
+# def test_close_connection(mock_db_manage, mocker):
+#     # Создаем мок-объект для psycopg2.connect
+#     mock_connect = mocker.patch('psycopg2.connect')
+#     mock_conn = MagicMock()
+#     mock_connect.return_value = mock_conn
 #
-# # Тест для получения максимальных и минимальных цен для каждого продукта
-# def test_get_max_min_price_for_each_product(db_manager, mocker):
-#     mocker.patch("scr.DBManage.pd.read_csv")
-#     mocker.patch("scr.DBManage.pd.DataFrame")
-#     mocker.patch("scr.DBManage.psycopg2")
+#     # Создаем мок-объект для psycopg2.cursor
+#     mock_cursor = mock_conn.cursor.return_value
 #
-#     db_manager.load_data()
-#     db_manager.get_max_min_price_for_each_product()
-#     # Проверяем, что был вызван метод execute
-#     db_manager.conn.cursor().execute.assert_called()
+#     # Вызываем метод close_connection
+#     mock_db_manage.close_connection()
 #
+#     # Убеждаемся, что методы закрытия соединения и курсора вызываются
+#     mock_cursor.close.assert_called_once()
+#     mock_conn.close.assert_called_once()
 #
-# # Тест для получения количества записей для каждого продукта
-# def test_get_record_count_for_each_product(db_manager, mocker):
-#     mocker.patch("scr.DBManage.pd.read_csv")
-#     mocker.patch("scr.DBManage.pd.DataFrame")
-#     mocker.patch("scr.DBManage.psycopg2")
+# def test_error_table(mock_db_manage, mocker):
+#     # Создаем мок-объект для psycopg2.connect
+#     mock_connect = mocker.patch('psycopg2.connect')
+#     mock_conn = MagicMock()
+#     mock_connect.return_value = mock_conn
 #
-#     db_manager.load_data()
-#     db_manager.get_record_count_for_each_product()
-#     # Проверяем, что был вызван метод execute
-#     db_manager.conn.cursor().execute.assert_called()
+#     # Создаем мок-объект для psycopg2.cursor
+#     mock_cursor = mock_conn.cursor.return_value
 #
+#     # Мокируем результат запроса
+#     mock_cursor.fetchone.return_value = None
 #
-# # Тест для закрытия соединения
-# def test_close_connection(db_manager, mocker):
-#     mocker.patch("scr.DBManage.psycopg2")
+#     # Вызываем метод error_table
+#     mock_db_manage.error_table()
 #
-#     db_manager.close_connection()
-#     # Проверяем, что был вызван метод close
-#     db_manager.conn.close.assert_called()
+#     # Убеждаемся, что метод execute вызывается с правильным SQL-запросом
+#     mock_cursor.execute.assert_called_once_with("SELECT * FROM products LIMIT 1")
 #
-#
-# # Тест для обработки ошибки отсутствия таблицы
-# def test_error_table(db_manager, mocker):
-#     mocker.patch("scr.DBManage.psycopg2")
-#
-#     db_manager.error_table()
-#     # Проверяем, что был вызван метод execute
-#     db_manager.conn.cursor().execute.assert_called()
-#
-# # Другие тесты можно написать аналогично, для остальных методов
+
