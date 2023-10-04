@@ -22,7 +22,7 @@ def test_create_border():
 
 def test_existing_section():
     """Тест наличия данных для подключения"""
-    # params = config("../database.ini") # Строка для теста конктетного файла
+    # params = config("../database.ini") # Строка для теста конкретного файла
     params = config()  # Строка для теста pytest --cov
 
     assert "host" in params
@@ -32,7 +32,7 @@ def test_existing_section():
 
 
 def test_non_existing_file():
-    """Тест отсудствия файла"""
+    """Тест отсутствия файла"""
 
     with pytest.raises(Exception):
         config("non_existent.ini", "postgresql")

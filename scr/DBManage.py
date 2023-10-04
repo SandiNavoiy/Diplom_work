@@ -93,7 +93,7 @@ class DBManage:
         """Разделение данных по продуктам и обучение моделей, линейная регрессия"""
         unique_products = self.data[
             "product"
-        ].unique()  # Выборка уникальных значений продкутов
+        ].unique()  # Выборка уникальных значений продуктов
 
         for product in unique_products:
             product_data = self.data[self.data["product"] == product]
@@ -115,7 +115,7 @@ class DBManage:
         """Разделение данных по продуктам и обучение моделей, не линейная регрессия"""
         unique_products = self.data[
             "product"
-        ].unique()  # Выборка уникальных значений продкутов
+        ].unique()  # Выборка уникальных значений продуктов
 
         for product in unique_products:
             product_data = self.data[self.data["product"] == product]
@@ -152,7 +152,7 @@ class DBManage:
         """Вывод средних значений по каждому продукту"""
         unique_products = self.data[
             "product"
-        ].unique()  # Выборка уникальных значений продкутов
+        ].unique()  # Выборка уникальных значений продуктов
         average_prices = {}
         for product in unique_products:
             # Запрос SQL для получения средней цены для конкретного продукта
