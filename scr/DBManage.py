@@ -76,14 +76,14 @@ class DBManage:
         # Ускорение загрузки, вместо insert используем Copy, разница в разы!
         with open(csv_file, "r") as f:
             self.cur.copy_expert(
-                f"COPY products(price, count, add_cost, company, product) FROM STDIN WITH CSV HEADER",
+                "COPY products(price, count, add_cost, company, product) FROM STDIN WITH CSV HEADER",
                 f,
             )
         self.conn.commit()
 
     def load_data(self):
         """Загрузка данных из базы данных"""
-        sql_query = f"SELECT price, count, add_cost, product FROM products"
+        sql_query = "SELECT price, count, add_cost, product FROM products"
         self.cur.execute(sql_query)
         columns = [desc[0] for desc in self.cur.description]
         data = self.cur.fetchall()

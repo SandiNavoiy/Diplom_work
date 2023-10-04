@@ -102,7 +102,8 @@ def interact_with_user():
                             db_manager.mse_scores.get(product, None) / db_manager.number
                         )
                         print(
-                            f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse / price) * 100, 2)} процентов"
+                            f"Прогнозируемая цена на {product}: {price}, "
+                            f"среднее отклонение {round((mse / price) * 100, 2)} процентов"
                         )
                 except psycopg2.errors.UndefinedTable:
                     print("Ошибка - Создайте таблицу")
@@ -124,7 +125,8 @@ def interact_with_user():
                             / db_manager.number_not_line
                         )
                         print(
-                            f"Прогнозируемая цена на {product}: {price}, среднее отклонение {round((mse / price) * 100, 2)} процентов"
+                            f"Прогнозируемая цена на {product}: {price}, "
+                            f"среднее отклонение {round((mse / price) * 100, 2)} процентов"
                         )
                 except psycopg2.errors.UndefinedTable:
                     print("Ошибка - Создайте таблицу")
@@ -176,16 +178,23 @@ def interact_with_user():
 
             elif choice == "8":
                 print(
-                    "Линейная регрессия (англ. Linear regression) — используемая в статистике регрессионная модель зависимости одной (объясняемой, зависимой) переменной y от другой или нескольких других переменных (факторов, регрессоров, независимых переменных) x с линейной функцией зависимости."
+                    "Линейная регрессия (англ. Linear regression) — используемая в статистике регрессионная "
+                    "модель зависимости одной (объясняемой, зависимой) переменной y от другой "
+                    "или нескольких других переменных (факторов, регрессоров, "
+                    "независимых переменных) x с линейной функцией зависимости."
                 )
                 print(
-                    "Подробнее https://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D0%BD%D0%B5%D0%B9%D0%BD%D0%B0%D1%8F_%D1%80%D0%B5%D0%B3%D1%80%D0%B5%D1%81%D1%81%D0%B8%D1%8F"
+                    "Подробнее https://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D0%BD%D0%B5%D0%B9%D0%BD%D0%B0%D1%8F"
+                    "_%D1%80%D0%B5%D0%B3%D1%80%D0%B5%D1%81%D1%81%D0%B8%D1%8F"
                 )
                 print(
-                    "Метод случайного леса (RandomForestRegressor) - алгоритм предказания используюшим содели случайных деревьев"
+                    "Метод случайного леса (RandomForestRegressor)"
+                    " - алгоритм предказания использующим модели случайных деревьев"
                 )
                 print(
-                    "Подробнее https://ru.wikipedia.org/wiki/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4_%D1%81%D0%BB%D1%83%D1%87%D0%B0%D0%B9%D0%BD%D0%BE%D0%B3%D0%BE_%D0%BB%D0%B5%D1%81%D0%B0"
+                    "Подробнее https://ru.wikipedia.org/wiki/"
+                    "%D0%9C%D0%B5%D1%82%D0%BE%D0%B4_%D1%81%D0%BB%D1%83%D1%87%D0%B0%D0%B9%"
+                    "D0%BD%D0%BE%D0%B3%D0%BE_%D0%BB%D0%B5%D1%81%D0%B0"
                 )
             elif choice == "9":
                 # Выход
@@ -219,6 +228,6 @@ def create_database(params: dict):
     conn = psycopg2.connect(dbname="postgres", **params)
     conn.autocommit = True
     cur = conn.cursor()
-    cur.execute(f"CREATE DATABASE testing")
+    cur.execute("CREATE DATABASE testing")
     cur.close()
     conn.close()
