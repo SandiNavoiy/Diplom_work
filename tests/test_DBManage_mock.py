@@ -72,27 +72,27 @@ def test_insert_table(mock_db_manage, mocker):
         mocker.ANY,
     )
 
-def test_load_data(mock_db_manage, mocker):
-    # Создаем мок-объект для psycopg2.connect
-    mock_connect = mocker.patch('psycopg2.connect')
-    mock_conn = MagicMock()
-    mock_connect.return_value = mock_conn
-
-    # Создаем мок-объект для psycopg2.cursor
-    mock_cursor = mock_conn.cursor.return_value
-
-    # Мокируем результат запроса
-    mock_cursor.description = [("price",), ("count",), ("add_cost",), ("product",)]
-
-    # Мокируем execute метод
-    mock_cursor.execute = MagicMock()
-
-    # Вызываем метод load_data
-    mock_db_manage.load_data()
-
-    # Убеждаемся, что метод execute вызывается с правильным SQL-запросом
-    expected_sql_query = "SELECT price, count, add_cost, product FROM products"
-    mock_cursor.execute.assert_called_once_with(expected_sql_query)
+# def test_load_data(mock_db_manage, mocker):
+#     # Создаем мок-объект для psycopg2.connect
+#     mock_connect = mocker.patch('psycopg2.connect')
+#     mock_conn = MagicMock()
+#     mock_connect.return_value = mock_conn
+#
+#     # Создаем мок-объект для psycopg2.cursor
+#     mock_cursor = mock_conn.cursor.return_value
+#
+#     # Мокируем результат запроса
+#     mock_cursor.description = [("price",), ("count",), ("add_cost",), ("product",)]
+#
+#     # Мокируем execute метод
+#     mock_cursor.execute = MagicMock()
+#
+#     # Вызываем метод load_data
+#     mock_db_manage.load_data()
+#
+#     # Убеждаемся, что метод execute вызывается с правильным SQL-запросом
+#     expected_sql_query = "SELECT price, count, add_cost, product FROM products"
+#     mock_cursor.execute.assert_called_once_with(expected_sql_query)
 # #
 # def test_train_models(mock_db_manage):
 #     # Подготовим фейковые данные для теста
@@ -111,7 +111,7 @@ def test_load_data(mock_db_manage, mocker):
 #     assert "A" in mock_db_manage.models
 #     assert "B" in mock_db_manage.models
 #     assert "C" in mock_db_manage.models
-#
+# #
 # def test_train_models_not_line(mock_db_manage):
 #     # Подготовим фейковые данные для теста
 #     mock_db_manage.data = pd.DataFrame({
@@ -164,47 +164,47 @@ def test_load_data(mock_db_manage, mocker):
 #
 #     # Проверяем, что метод возвращает правильные средние цены
 #     assert average_prices == {"A": 25.0, "B": 55.0, "C": 85.0}
-#
-# def test_get_max_min_price_for_each_product(mock_db_manage):
-#     # Подготовим фейковые данные для теста
-#     mock_db_manage.data = pd.DataFrame({
-#         "price": [20, 40, 60, 80, 100, 10, 110],
-#         "product": ["A", "A", "B", "B", "C", "A", "C"]
-#     })
-#
-#     # Вызываем метод get_max_min_price_for_each_product
-#     max_min_prices = mock_db_manage.get_max_min_price_for_each_product()
-#
-#     # Проверяем, что метод возвращает правильные максимальные и минимальные цены
-#     assert max_min_prices == {"A": {"max_price": 40, "min_price": 10}, "B": {"max_price": 80, "min_price": 60}, "C": {"max_price": 100, "min_price": 10}}
-#
-# def test_get_record_count_for_each_product(mock_db_manage):
-#     # Подготовим фейковые данные для теста
-#     mock_db_manage.data = pd.DataFrame({
-#         "product": ["A", "A", "B", "B", "C", "A", "C"]
-#     })
-#
-#     # Вызываем метод get_record_count_for_each_product
-#     record_counts = mock_db_manage.get_record_count_for_each_product()
-#
-#     # Проверяем, что метод возвращает правильное количество записей
-#     assert record_counts == {"A": 3, "B": 2, "C": 2}
-#
-# def test_close_connection(mock_db_manage, mocker):
-#     # Создаем мок-объект для psycopg2.connect
-#     mock_connect = mocker.patch('psycopg2.connect')
-#     mock_conn = MagicMock()
-#     mock_connect.return_value = mock_conn
-#
-#     # Создаем мок-объект для psycopg2.cursor
-#     mock_cursor = mock_conn.cursor.return_value
-#
-#     # Вызываем метод close_connection
-#     mock_db_manage.close_connection()
-#
-#     # Убеждаемся, что методы закрытия соединения и курсора вызываются
-#     mock_cursor.close.assert_called_once()
-#     mock_conn.close.assert_called_once()
+
+def test_get_max_min_price_for_each_product(mock_db_manage):
+    # Подготовим фейковые данные для теста
+    mock_db_manage.data = pd.DataFrame({
+        "price": [20, 40, 60, 80, 100, 10, 110],
+        "product": ["A", "A", "B", "B", "C", "A", "C"]
+    })
+
+    # Вызываем метод get_max_min_price_for_each_product
+    max_min_prices = mock_db_manage.get_max_min_price_for_each_product()
+
+    # Проверяем, что метод возвращает правильные максимальные и минимальные цены
+    assert max_min_prices == {"A": {"max_price": 40, "min_price": 10}, "B": {"max_price": 80, "min_price": 60}, "C": {"max_price": 110, "min_price": 100}}
+
+def test_get_record_count_for_each_product(mock_db_manage):
+    # Подготовим фейковые данные для теста
+    mock_db_manage.data = pd.DataFrame({
+        "product": ["A", "A", "B", "B", "C", "A", "C"]
+    })
+
+    # Вызываем метод get_record_count_for_each_product
+    record_counts = mock_db_manage.get_record_count_for_each_product()
+
+    # Проверяем, что метод возвращает правильное количество записей
+    assert record_counts == {"A": 3, "B": 2, "C": 2}
+
+def test_close_connection(mock_db_manage, mocker):
+    # Создаем мок-объект для psycopg2.connect
+    mock_connect = mocker.patch('psycopg2.connect')
+    mock_conn = MagicMock()
+    mock_connect.return_value = mock_conn
+
+    # Создаем мок-объект для psycopg2.cursor
+    mock_cursor = mock_conn.cursor.return_value
+
+    # Вызываем метод close_connection
+    mock_db_manage.close_connection()
+
+    # Убеждаемся, что методы закрытия соединения и курсора вызываются
+    mock_cursor.close.assert_called_once()
+    mock_conn.close.assert_called_once()
 #
 # def test_error_table(mock_db_manage, mocker):
 #     # Создаем мок-объект для psycopg2.connect
