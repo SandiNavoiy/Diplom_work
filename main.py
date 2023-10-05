@@ -11,7 +11,7 @@ if __name__ == "__main__":
         f"{user_name}  - добро пожаловать в программу прогнозирования цен на продукты"
     )
     welcome = WelcomeMessage(welcome_message)
-    print(Fore.BLUE + f'{welcome}')
+    print(Fore.BLUE + f"{welcome}")
 
     # Запуск контекстного меню
     interact_with_user()
