@@ -55,18 +55,26 @@ def interact_with_user():
             # Запускаем бесконечный цикл для работы меню
             print(Fore.GREEN + "Выберите действие:")
 
-            print(Fore.RED +
-                "1 - Пересоздание базы данных и таблиц (Осторожно, старая БД будет удалена!"
+            print(
+                Fore.RED
+                + "1 - Пересоздание базы данных и таблиц (Осторожно, старая БД будет удалена!"
             )
             print(Fore.CYAN + "2 - Заполняем таблицу БД данными из cvs файла")
             print(Fore.MAGENTA + "3 - Прогнозирование цен методом линейной регрессии")
             print(Fore.MAGENTA + "4 - Прогнозирование цен методом случайных деревьев")
-            print(Fore.MAGENTA +
-                "5 - Прогнозирование цен самым простым методом, подсчета средней цены"
+            print(
+                Fore.MAGENTA
+                + "5 - Прогнозирование цен самым простым методом, подсчета средней цены"
             )
-            print(Fore.YELLOW + "6 - Вывод  максимальной и минимальной цены по каждому товару ")
+            print(
+                Fore.YELLOW
+                + "6 - Вывод  максимальной и минимальной цены по каждому товару "
+            )
             print(Fore.YELLOW + "7 - Вывод  количества записей для каждого продукта")
-            print(Fore.YELLOW + "8 -  Вывод краткой справки о методах прогноза цен (Справка)")
+            print(
+                Fore.YELLOW
+                + "8 -  Вывод краткой справки о методах прогноза цен (Справка)"
+            )
             print(Fore.RED + "9 - Выйти")
             choice = input(Fore.GREEN + "Введите значение---")
 
@@ -87,8 +95,9 @@ def interact_with_user():
                         # Проверка наличие таблицы
                         print(Fore.RED + "Нет таблиц, создайте - пункт 1")
                     else:
-                        print(Fore.GREEN +
-                            "Таблица заполняется. требуется много времени(несколько минут)"
+                        print(
+                            Fore.GREEN
+                            + "Таблица заполняется. требуется много времени(несколько минут)"
                         )
                         print(Fore.GREEN + f"Всего в базе {len(df)} элементов")
                         db_manager.insert_table(csv_filename)
@@ -106,8 +115,8 @@ def interact_with_user():
                         mse = (
                             db_manager.mse_scores.get(product, None) / db_manager.number
                         )
-                        print(Fore.GREEN +
-                            f"Прогнозируемая цена на {product}: {price}, "
+                        print(
+                            Fore.GREEN + f"Прогнозируемая цена на {product}: {price}, "
                             f"среднее отклонение {round((mse / price) * 100, 2)} процентов"
                         )
                 except psycopg2.errors.UndefinedTable:
@@ -129,8 +138,8 @@ def interact_with_user():
                             db_manager.mse_scores.get(product, None)
                             / db_manager.number_not_line
                         )
-                        print(Fore.GREEN +
-                            f"Прогнозируемая цена на {product}: {price}, "
+                        print(
+                            Fore.GREEN + f"Прогнозируемая цена на {product}: {price}, "
                             f"среднее отклонение {round((mse / price) * 100, 2)} процентов"
                         )
                 except psycopg2.errors.UndefinedTable:
@@ -173,7 +182,10 @@ def interact_with_user():
                     record_counts = db_manager.get_record_count_for_each_product()
                     for product, prices in record_counts.items():
                         print(Fore.GREEN + f"Продукт: {product}")
-                        print(Fore.GREEN + f"Количество записей в БД: {record_counts[product]}\n")
+                        print(
+                            Fore.GREEN
+                            + f"Количество записей в БД: {record_counts[product]}\n"
+                        )
                 except psycopg2.errors.UndefinedTable:
                     print(Fore.RED + "Ошибка - Создайте таблицу")
                 except psycopg2.errors.InFailedSqlTransaction:
