@@ -1,15 +1,15 @@
-import factories as factories
+
 import pytest
 import pandas as pd
 from unittest.mock import MagicMock
-from pytest_postgresql import factories
+
 from scr.DBManage import DBManage
 
 #postgres_db = factories.postgresql("postgresql")
 @pytest.fixture
 def mock_db_manage(mocker):
     # Создаем фиктивный объект DBManage для тестирования
-    return DBManage(database_name="test_db", params={"user": "postgres", "password": "1"})
+    return DBManage(database_name="test_db1", params={"user": "postgres", "password": "1"})
 
 def test_connect_to_database(mock_db_manage, mocker):
     # Создаем мок-объект для psycopg2.connect
@@ -21,7 +21,7 @@ def test_connect_to_database(mock_db_manage, mocker):
     mock_db_manage.connect_to_database()
 
     # Убеждаемся, что connect вызывается с правильными аргументами
-    mock_connect.assert_called_once_with(dbname="test_db", user="postgres", password="1")
+    mock_connect.assert_called_once_with(dbname="test_db1", user="postgres", password="1")
 
 def test_create_database(mock_db_manage, mocker):
     # Создаем мок-объект для psycopg2.connect
@@ -33,8 +33,8 @@ def test_create_database(mock_db_manage, mocker):
     # Вызываем метод create_database
     mock_db_manage.create_database()
     # Убеждаемся, что методы для создания и удаления базы данных вызываются
-    mock_cursor.execute.assert_any_call("DROP DATABASE IF EXISTS test_db")
-    mock_cursor.execute.assert_any_call("CREATE DATABASE test_db")
+    mock_cursor.execute.assert_any_call("DROP DATABASE IF EXISTS test_db1")
+    mock_cursor.execute.assert_any_call("CREATE DATABASE test_db1")
 #
 def test_create_tables(mock_db_manage, mocker):
     # Создаем мок-объект для psycopg2.connect
@@ -64,6 +64,7 @@ def test_insert_table(mock_db_manage, mocker):
 
     # Вызываем метод insert_table
     csv_file = "../csv_data_test.csv"  # Замените на путь к вашему тестовому файлу CSV
+    #csv_file = "csv_data_test.csv"  # Замените на путь к вашему тестовому файлу CSV
     mock_db_manage.insert_table(csv_file)
 
     # Убеждаемся, что метод copy_expert вызывается с правильными аргументами
@@ -72,64 +73,43 @@ def test_insert_table(mock_db_manage, mocker):
         mocker.ANY,
     )
 
-# def test_load_data(mock_db_manage, mocker):
-#     # Создаем мок-объект для psycopg2.connect
-#     mock_connect = mocker.patch('psycopg2.connect')
-#     mock_conn = MagicMock()
-#     mock_connect.return_value = mock_conn
-#
-#     # Создаем мок-объект для psycopg2.cursor
-#     mock_cursor = mock_conn.cursor.return_value
-#
-#     # Мокируем результат запроса
-#     mock_cursor.description = [("price",), ("count",), ("add_cost",), ("product",)]
-#
-#     # Мокируем execute метод
-#     mock_cursor.execute = MagicMock()
-#
-#     # Вызываем метод load_data
-#     mock_db_manage.load_data()
-#
-#     # Убеждаемся, что метод execute вызывается с правильным SQL-запросом
-#     expected_sql_query = "SELECT price, count, add_cost, product FROM products"
-#     mock_cursor.execute.assert_called_once_with(expected_sql_query)
-# #
-# def test_train_models(mock_db_manage):
-#     # Подготовим фейковые данные для теста
-#     mock_db_manage.data = pd.DataFrame({
-#         "count": [1, 2, 3, 4, 5],
-#         "add_cost": [10, 20, 30, 40, 50],
-#         "price": [20, 40, 60, 80, 100],
-#         "product": ["A", "A", "B", "B", "C"]
-#     })
-#
-#     # Вызываем метод train_models
-#     mock_db_manage.train_models()
-#
-#     # Проверяем, что модели были обучены и добавлены в словарь models
-#     assert len(mock_db_manage.models) == 3
-#     assert "A" in mock_db_manage.models
-#     assert "B" in mock_db_manage.models
-#     assert "C" in mock_db_manage.models
-# #
-# def test_train_models_not_line(mock_db_manage):
-#     # Подготовим фейковые данные для теста
-#     mock_db_manage.data = pd.DataFrame({
-#         "count": [1, 2, 3, 4, 5],
-#         "add_cost": [10, 20, 30, 40, 50],
-#         "price": [20, 40, 60, 80, 100],
-#         "product": ["A", "A", "B", "B", "C"]
-#     })
-#
-#     # Вызываем метод train_models_not_line
-#     mock_db_manage.train_models_not_line()
-#
-#     # Проверяем, что модели были обучены и добавлены в словарь models
-#     assert len(mock_db_manage.models) == 3
-#     assert "A" in mock_db_manage.models
-#     assert "B" in mock_db_manage.models
-#     assert "C" in mock_db_manage.models
-#
+
+def test_train_models(mock_db_manage):
+    # Подготовим фейковые данные для теста
+    mock_db_manage.data = pd.DataFrame({
+        "count": [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
+        "add_cost": [10, 20, 30, 40, 50, 10, 20, 30, 40, 50, 10, 20, 30, 40, 50],
+        "price": [20, 40, 60, 80, 100, 20, 40, 60, 80, 100, 20, 40, 60, 80, 100],
+        "product": ["A", "A", "B", "B", "C", "A", "A", "B", "B", "C", "A", "A", "B", "B", "C"]
+    })
+
+    # Вызываем метод train_models
+    mock_db_manage.train_models()
+
+    # Проверяем, что модели были обучены и добавлены в словарь models
+    assert len(mock_db_manage.models) == 3
+    assert "A" in mock_db_manage.models
+    assert "B" in mock_db_manage.models
+    assert "C" in mock_db_manage.models
+
+def test_train_models_not_line(mock_db_manage):
+    # Подготовим фейковые данные для теста
+    mock_db_manage.data = pd.DataFrame({
+        "count": [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
+        "add_cost": [10, 20, 30, 40, 50, 10, 20, 30, 40, 50, 10, 20, 30, 40, 50],
+        "price": [20, 40, 60, 80, 100, 20, 40, 60, 80, 100, 20, 40, 60, 80, 100],
+        "product": ["A", "A", "B", "B", "C", "A", "A", "B", "B", "C", "A", "A", "B", "B", "C"]
+    })
+
+    # Вызываем метод train_models_not_line
+    mock_db_manage.train_models__not_line()
+
+    # Проверяем, что модели были обучены и добавлены в словарь models
+    assert len(mock_db_manage.models) == 3
+    assert "A" in mock_db_manage.models
+    assert "B" in mock_db_manage.models
+    assert "C" in mock_db_manage.models
+
 # def test_predict_prices_for_all_products(mock_db_manage):
 #     # Подготовим фейковые данные для теста
 #     mock_db_manage.models = {
@@ -223,5 +203,29 @@ def test_close_connection(mock_db_manage, mocker):
 #
 #     # Убеждаемся, что метод execute вызывается с правильным SQL-запросом
 #     mock_cursor.execute.assert_called_once_with("SELECT * FROM products LIMIT 1")
-#
 
+
+# def test_load_data(mock_db_manage, mocker):
+#     # Создаем мок-объект для psycopg2.connect
+#     mock_connect = mocker.patch('psycopg2.connect')
+#     mock_conn = MagicMock()
+#     mock_connect.return_value = mock_conn
+#
+#     # Создаем мок-объект для psycopg2.cursor
+#     mock_cursor = mock_conn.cursor.return_value
+#
+#     # Создаем мок-объект для результата выполнения SQL-запроса
+#     mock_result = MagicMock()
+#
+#     # Настраиваем объект mock_cursor, чтобы он возвращал mock_result при вызове execute
+#     mock_cursor.execute.return_value = mock_result
+#
+#     # Вызываем метод load_data
+#     mock_db_manage.load_data()
+#
+#     # Убеждаемся, что метод execute вызывается на объекте mock_conn.cursor()
+#     expected_sql_query = "SELECT price, count, add_cost, product FROM products"
+#     mock_conn.cursor().execute.assert_called_once_with(expected_sql_query)
+#
+#     # Убеждаемся, что метод fetchall вызывается на mock_result
+#     mock_result.fetchall.assert_called_once()
