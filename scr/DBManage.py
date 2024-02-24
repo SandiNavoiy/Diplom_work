@@ -6,7 +6,7 @@ from sklearn.exceptions import DataConversionWarning
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-
+from numba import jit
 
 # Игнорирование всех предупреждений от scikit-learn
 warnings.filterwarnings(action="ignore", category=DataConversionWarning)
@@ -89,6 +89,7 @@ class DBManage:
         data = self.cur.fetchall()
         self.data = pd.DataFrame(data, columns=columns)
 
+
     def train_models(self):
         """Разделение данных по продуктам и обучение моделей, линейная регрессия"""
         unique_products = self.data[
@@ -110,6 +111,7 @@ class DBManage:
             y_pred = model.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             self.mse_scores[product] = mse
+
 
     def train_models__not_line(self):
         """Разделение данных по продуктам и обучение моделей, не линейная регрессия"""
@@ -134,6 +136,7 @@ class DBManage:
             mse = mean_squared_error(y_test, y_pred)
             self.mse_scores[product] = mse
 
+
     def predict_prices_for_all_products(self):
         """Прогнозирование цен для всех продуктов"""
         predictions = {}
@@ -147,6 +150,7 @@ class DBManage:
             price = model.predict([[count, add_cost]])
             predictions[product] = price[0]
         return predictions
+
 
     def get_average_prices_for_each_product(self):
         """Вывод средних значений по каждому продукту"""
@@ -169,6 +173,7 @@ class DBManage:
             average_prices[product] = average_price
         return average_prices
 
+
     def get_max_min_price_for_each_product(self):
         """Определение максимального и минимального значения цены для каждого продукта"""
         # SELECT product, MAX(price) AS max_price,  MIN(price) AS min_price FROM  products GROUP BY product;
@@ -181,6 +186,7 @@ class DBManage:
             min_price = product_data["price"].min()  # Минимальная цена
             max_min_prices[product] = {"max_price": max_price, "min_price": min_price}
         return max_min_prices
+
 
     def get_record_count_for_each_product(self):
         """Определение количества записей для каждого продукта"""
